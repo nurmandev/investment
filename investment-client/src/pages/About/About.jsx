@@ -9,6 +9,7 @@ import ContactUs from "../../components/ContactUs/ContactUs";
 import Team from "../../components/Team/Team";
 import Sponsors from "../../components/Sponsors/Sponsors";
 function About() {
+  console.log("check");
   return (
     <>
       <Navbar />
@@ -20,7 +21,7 @@ function About() {
       <Team />
       <Sponsors />
       <Footer />
-      <CoinSlider />
+      {/* <CoinSlider /> */}
     </>
   );
 }

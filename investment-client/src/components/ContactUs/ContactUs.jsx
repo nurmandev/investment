@@ -1,6 +1,7 @@
 import "./styles.css";
 import { CiLocationOn, CiMail } from "react-icons/ci";
 import ContactForm from "./ContactForm";
+import { FaWhatsapp } from "react-icons/fa";
 function ContactUs() {
   return (
     <div className="min-h-screen 2xl:min-h-[80vh] contact relative font-montserrat text-white">
@@ -12,7 +13,7 @@ function ContactUs() {
           Feel free to contact us for any questions regarding our services or
           your finances. Our Customer Support is 24/7 and very friendly.
         </p>
-        <div className="py-7 border-t border-b border-white/80 flex space-x-3 md:w-[50%]">
+        {/* <div className="py-7 border-t border-b border-white/80 flex space-x-3 md:w-[50%]">
           <CiLocationOn className="text-white" />
           <div>
             <span className="font-bold">LOCATION </span>
@@ -21,12 +22,21 @@ function ContactUs() {
             </p>
             <p className="text-sm">England, W1W 6AB</p>
           </div>
-        </div>
+        </div> */}
+
         <div className="py-7  flex space-x-3 md:w-[50%]">
           <CiMail className="text-white" />
           <div>
             <span className="font-bold">EMAIL </span>
-            <p className="text-sm">miningexchange@gmail.com</p>
+            <p className="text-sm">XWIN@gmail.com</p>
+          </div>
+        </div>
+        <div className="py-7  flex space-x-3 md:w-[50%]">
+          <FaWhatsapp className="text-white" />
+          <div>
+            <span className="font-bold">PHONE </span>
+
+            <div className="text-white"> 01150534320</div>
           </div>
         </div>
         {/* form div */}

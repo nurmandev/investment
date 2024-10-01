@@ -34,12 +34,14 @@ function WalletDetails({
       <div className="py-4">
         <p className="text-xl text-gray-700  dark:text-white font-montserrat ">
           You are to make payment of{" "}
-          <span className="font-bold">${amount} </span> using your selected
+          <span className="font-bold">{amount}EGP </span> using your selected
           payment method.
         </p>
         <div className="py-3">
           <img
-            src={selected.logo}
+            src={
+              "https://static.vecteezy.com/system/resources/previews/025/439/329/non_2x/phone-money-logo-template-design-modern-mobile-payment-logo-for-your-company-free-vector.jpg"
+            }
             alt={selected.name}
             className="h-[200px] w-[200px]"
           />
@@ -47,14 +49,14 @@ function WalletDetails({
         {/* wallet address */}
         <div>
           <p className="font-montserrat text-xl text-gray-700  dark:text-white capitalize font-bold">
-            {selected.name} address:
+            Local TRansfer address:
           </p>
           <div className="relative bg-white flex items-center border border-gray-500 dark:border-white rounded-md ">
             <input
               readOnly
               type="text"
               className=" border-none flex-1 outline-none p-3 text-gray-500"
-              value={selected.walletAddress}
+              value={selected.value}
             />
             {!copy ? (
               <button onClick={copyWalletAddress} className=" cursor-pointer">
@@ -67,10 +69,10 @@ function WalletDetails({
               </div>
             )}
           </div>
-          <span className="font-montserrat uppercase text-gray-500">
+          {/* <span className="font-montserrat uppercase text-gray-500">
             <span className="font-semibold capitalize"> Network type : </span>
             {selected.network}
-          </span>
+          </span> */}
         </div>
 
         {/* payment proof inpaut */}

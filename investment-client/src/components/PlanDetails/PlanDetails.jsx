@@ -2,6 +2,7 @@
 import { LuLoader2 } from "react-icons/lu";
 
 function PlanDetails({ amount, handleInvesmentClick, plan, loading }) {
+  console.log("plan", plan);
   return (
     <div className="p-3">
       <div className="border border-gray-500 dark:border-white rounded-md p-3">
@@ -28,7 +29,7 @@ function PlanDetails({ amount, handleInvesmentClick, plan, loading }) {
               Minimum price
             </p>
             <span className=" capitalize text-xs font-bold text-red-300">
-              ${plan.minimumPrice}
+              {plan.minimumPrice}EGP
             </span>
           </div>
           <div>
@@ -36,13 +37,13 @@ function PlanDetails({ amount, handleInvesmentClick, plan, loading }) {
               Maximum price
             </p>
             <span className=" capitalize text-xs font-bold text-red-300">
-              ${plan.maximumPrice}
+              {plan.maximumPrice}EGP
             </span>
           </div>
           <div>
             <p className="text-xs text-gray-700 dark:text-white">Gift Bonus</p>
             <span className=" capitalize text-xs font-bold text-red-300">
-              ${plan.giftBonus}
+              {plan.giftBonus}EGP
             </span>
           </div>
           <div>
@@ -70,7 +71,7 @@ function PlanDetails({ amount, handleInvesmentClick, plan, loading }) {
           </span>
           {amount && (
             <span className="capitalize text-lg  font-bold text-red-400">
-              ${amount}
+              {amount}EGP
             </span>
           )}
         </div>

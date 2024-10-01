@@ -4,6 +4,7 @@ const Plan = require("../models/Plan");
 const CustomError = require("../utils/customError");
 const asyncErrorHandler = require("../utils/asyncErrorHandler");
 const cloudinary = require("../utils/cloudinary");
+const calculateNextPaymentDate = require("../utils/subscription");
 
 //handle referral => to be done
 exports.getUsers = asyncErrorHandler(async (req, res, next) => {
@@ -25,6 +26,71 @@ exports.getUser = asyncErrorHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     user,
+  });
+});
+
+exports.addReferral = asyncErrorHandler(async (req, res, next) => {
+  const { referralCode } = req.body;
+  const userId = req.user._id; // Assuming user is authenticated and user ID is available
+
+  // Find the referrer by the referral code
+  const referrer = await User.findOne({ referralCode });
+
+  if (!referrer) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Invalid referral code",
+    });
+  }
+
+  // Prevent the user from referring themselves
+  if (referrer._id.equals(userId)) {
+    return res.status(400).json({
+      status: "fail",
+      message: "You cannot refer yourself",
+    });
+  }
+
+  // Ensure the user hasn't already been referred
+  const user = await User.findById(userId);
+  if (user.referrer) {
+    return res.status(400).json({
+      status: "fail",
+      message: "You have already been referred",
+    });
+  }
+
+  // Link the referrer to the user
+  user.referrer = referrer._id;
+  referrer.referrals.push(user._id);
+
+  // Save both user and referrer
+  await user.save();
+  await referrer.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Referral added successfully",
+    referrerId: referrer._id,
+  });
+});
+
+exports.getUserReferrals = asyncErrorHandler(async (req, res, next) => {
+  const userId = req.user._id; // Assuming the user is authenticated and the user ID is available
+
+  // Find the user by ID and populate the referrals field
+  const user = await User.findById(userId).populate("referrals");
+
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    referrals: user.referrals,
   });
 });
 
@@ -217,21 +283,46 @@ const updateUserBalancePerSubscription = asyncErrorHandler(
 
 //we need to take note of the money invested on each plans by the various users at every point in time
 exports.scheduleUserBalanceUpdates = asyncErrorHandler(async () => {
-  const users = await User.find();
-  for (const user of users) {
-    for (const subscription of user.subscriptions) {
-      //check frequency and calculate cron expression
-      const cronExpression = calculateCronExpression(
-        subscription.frequency,
-        subscription.startDate
-      );
+  try {
+    const users = await User.find({ "subscriptions.0": { $exists: true } });
 
-      //schedule task
-      cron.schedule(
-        cronExpression,
-        updateUserBalancePerSubscription(user, subscription)
-      );
-    }
+    users.forEach(async (user) => {
+      let totalProfit = 0;
+      console.log(user);
+      for (let subscription of user.subscriptions) {
+        const plan = await Plan.findById(subscription.plan);
+        console.log(subscription);
+
+        if (plan && new Date() >= subscription.nextPaymentDate) {
+          const profit = (subscription.cost * plan.topUpAmount) / 100;
+          totalProfit += profit;
+
+          // Calculate the next payment date
+          const nextPaymentDate = calculateNextPaymentDate(
+            subscription.nextPaymentDate,
+            plan.topUpInterval
+          );
+
+          // Update the subscription with the new next payment date
+          subscription.nextPaymentDate = nextPaymentDate;
+        }
+      }
+
+      if (totalProfit > 0) {
+        await User.findByIdAndUpdate(
+          user._id,
+          {
+            $inc: { withdrawableFunds: totalProfit },
+            subscriptions: user.subscriptions,
+          },
+          { new: true, runValidators: true }
+        );
+        console.log(`Credited $${totalProfit} profit to user ${user.email}`);
+      }
+    });
+    console.log("Updste balance updsted");
+  } catch (error) {
+    console.error("Error running profit crediting cron job:", error);
   }
 });
 

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import DepositForm from "../../../components/DepositForm/DepositForm";
-import { paymentMethods } from "../../../assets/data";
+// import { paymentMethods } from "../../../assets/data";
 import WalletDetails from "../../../components/WalletDetails/WalletDetails";
 // import { useSelector, useDispatch } from "react-redux";
 // import { makeDeposit, reset } from "../../features/deposits/depositSlice";
@@ -13,10 +13,33 @@ import { useAuth } from "../../../hooks/useAuth";
 function Deposit() {
   const [amount, setAmount] = useState(null);
   const [receipt, setReceipt] = useState(null);
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const [selected, setSelected] = useState(paymentMethods[0]);
   const [loading, setLoading] = useState(false);
   const [showWalletDetails, setShowWalletDetails] = useState(false);
   const { user, setUser } = useAuth();
+
+  const getNumbers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_GENERAL_API_ENDPOINT}numbers`,
+        {
+          withCredentials: true,
+        }
+      );
+      setPaymentMethods(data.numbers);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    getNumbers();
+  }, [getNumbers]);
+
   const handleDeposit = async () => {
     setLoading(true);
     const formData = new FormData();
@@ -80,7 +103,7 @@ function Deposit() {
             <div className="flex  border-b border-gray-500 dark:border-white p-4">
               <p className="flex-1 font-semibold">Pending Deposits</p>
               <div className="flex-1">
-                <p className="font-semibold ">${user?.pendingDeposit}</p>
+                <p className="font-semibold ">{user?.pendingDeposit}EGP</p>
                 <span className="text-sm text-gray-500">Amount</span>
               </div>
             </div>

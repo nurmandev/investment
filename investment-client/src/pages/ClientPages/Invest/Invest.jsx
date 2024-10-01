@@ -10,10 +10,11 @@ import Refetch from "../../../components/Refetch/Refetch";
 
 function Invest() {
   const [plan, setPlan] = useState("");
-  const [plans, setPlans] = useState(null);
+  const [plans, setPlans] = useState([]);
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [investmentLoading, setInvestmentLoading] = useState(false);
+  const [paymentSource, setPaymentSource] = useState("approvedBalance");
   const [error, setError] = useState(false);
   const { setUser, user } = useAuth();
   console.log(user);
@@ -45,7 +46,11 @@ function Invest() {
 
   const handleInvestmentClick = async () => {
     setInvestmentLoading(true);
-    const planObject = { planId: plan._id, amount: investmentAmount };
+    const planObject = {
+      planId: plan._id,
+      amount: investmentAmount,
+      paymentSource,
+    };
     // subscribe to plan logic here
     try {
       const { data } = await axios.patch(
@@ -92,7 +97,7 @@ function Invest() {
           <p className="text-sm dark:text-white">Getting plan details...</p>
         </div>
       )}
-      {plans && (
+      {plans.length > 0 && (
         <div className="grid  xl:grid-cols-4 gap-2 bg-white shadow-sm dark:bg-slate-800 font-montserrat">
           <PlanSelection
             plans={plans}
@@ -100,16 +105,19 @@ function Invest() {
             setInvestmentAmount={setInvestmentAmount}
             plan={plan}
             setPlan={setPlan}
+            setPaymentSource={setPaymentSource}
           />
 
-          <div className=" col-span-4 xl:col-span-1  mt-5 text-gray-700  dark:text-white font-montserrat">
-            <PlanDetails
-              amount={investmentAmount}
-              handleInvesmentClick={handleInvestmentClick}
-              plan={plan}
-              loading={investmentLoading}
-            />
-          </div>
+          {plan && (
+            <div className=" col-span-4 xl:col-span-1  mt-5 text-gray-700  dark:text-white font-montserrat">
+              <PlanDetails
+                amount={investmentAmount}
+                handleInvesmentClick={handleInvestmentClick}
+                plan={plan}
+                loading={investmentLoading}
+              />
+            </div>
+          )}
         </div>
       )}
     </>
